@@ -1,0 +1,34 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns; sns.set()
+from itertools import product
+
+df = pd.DataFrame(list(product(range(1,21), range(1,21))), columns=['A', 'B'])
+
+
+def getnextdate(x):
+    if np.gcd(x[0], x[1]) != 1:
+        return np.nan
+    else:
+        adates = [x[0] * a for a in range(1, x[1] + 1)]
+        adates2 = [a + 1 for a in adates]
+        adatestotal = adates + adates2
+        bdates = [x[1] * b for b in range(1, x[0] + 1)]
+        bdates2 = [b + 1 for b in bdates]
+        bdatestotal = bdates + bdates2
+        nextdate = min(set(adatestotal).intersection(set(bdatestotal)))
+        return float(nextdate)
+
+
+df['C'] = df.apply(getnextdate, axis=1)
+
+ptable = df.pivot('A', 'B', 'C')
+
+fig, ax = plt.subplots(figsize=(8,8))
+mask = np.zeros_like(ptable)
+mask[np.triu_indices_from(mask)] = True
+g = sns.heatmap(ptable, cmap='Blues', cbar=False, linewidth=0.5, annot=True, mask=mask, fmt='n', square=True)
+g.set_facecolor('white')
+plt.show()
+# plt.savefig('cicadas.jpg')
